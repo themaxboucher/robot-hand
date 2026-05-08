@@ -46,7 +46,14 @@ class ArduinoServos:
     def send_angles(self, angles):
         if len(angles) != NUM_SERVOS:
             raise ValueError(f"Expected {NUM_SERVOS} angles, got {len(angles)}")
-        clamped = [max(0, min(180, int(a))) for a in angles]
+        clamped = [
+            max(0, min(90, int(angles[0]))),          # bottom thumb: 0-90
+            max(0, min(180, int(angles[1]))),         # thumb: 0-180
+            max(0, min(180, int(angles[2]))),         # index: 0-180
+            max(0, min(180, int(angles[3]))),         # middle: 0-180
+            max(0, min(180, int(angles[4]))),         # ring: 0-180
+            max(0, min(180, int(angles[5]))),         # pinky: 0-180
+        ]
         message = ",".join(str(a) for a in clamped) + "\n"
         self._serial.write(message.encode("ascii"))
 
