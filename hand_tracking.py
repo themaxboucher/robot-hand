@@ -7,7 +7,7 @@ from arduino import NUM_SERVOS
 # fully curled is ~40°, fully extended is ~175°.
 FINGER_ANGLE_RANGE = (30.0, 175.0)
 THUMB_ANGLE_RANGE = (110.0, 160.0)
-BOTTOM_THUMB_ANGLE_RANGE = (10.0, 35.0)
+BOTTOM_THUMB_ANGLE_RANGE = (15.0, 35.0)
 
 def calculate_angle(a, b, c):
     ax, ay = a.x, a.y
