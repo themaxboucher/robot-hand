@@ -3,6 +3,11 @@ import cv2
 
 from arduino import NUM_SERVOS
 
+SERVO_SMOOTH_ALPHA = 0.20
+
+def smooth_servo_angles(current, target, alpha=SERVO_SMOOTH_ALPHA):
+    return [c + alpha * (t - c) for c, t in zip(current, target)]
+
 # Roughly the PIP-joint angle range we see from MediaPipe in practice:
 # fully curled is ~40°, fully extended is ~175°.
 FINGER_ANGLE_RANGE = (30.0, 175.0)

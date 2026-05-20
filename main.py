@@ -6,9 +6,14 @@ import cv2
 import mediapipe as mp
 
 from arduino import ArduinoServos, NUM_SERVOS, open_close_demo
-from hand_tracking import get_finger_angles, fingers_to_servo_angles, draw_landmark_indices
+from hand_tracking import (
+    draw_landmark_indices,
+    fingers_to_servo_angles,
+    get_finger_angles,
+    smooth_servo_angles,
+)
 
-SERVO_SEND_HZ = 30.0 # Cap servo updates so we don't saturate the serial link
+SERVO_SEND_HZ = 30.0  # Cap servo updates so we don't saturate the serial link
 
 mp_hands = mp.solutions.hands
 mp_draw = mp.solutions.drawing_utils
@@ -72,7 +77,7 @@ def main():
 
     send_interval = 1.0 / SERVO_SEND_HZ
     last_send = 0.0
-    last_servo_angles = [0] * NUM_SERVOS
+    smoothed_servo_angles = [0.0] * NUM_SERVOS
 
     try:
         while True:
@@ -95,9 +100,14 @@ def main():
                     hand_visible = True
 
             if hand_visible:
-                servo_angles = fingers_to_servo_angles(finger_angles)
+                target_servo_angles = fingers_to_servo_angles(finger_angles)
             else:
-                servo_angles = last_servo_angles
+                target_servo_angles = smoothed_servo_angles
+
+            smoothed_servo_angles = smooth_servo_angles(
+                smoothed_servo_angles, target_servo_angles
+            )
+            servo_angles = [int(round(a)) for a in smoothed_servo_angles]
 
             now = time.monotonic()
             if arduino is not None and now - last_send >= send_interval:
@@ -106,7 +116,6 @@ def main():
                     last_send = now
                 except Exception as exc:
                     print(f"Serial write failed: {exc}")
-            last_servo_angles = servo_angles
 
             cv2.putText(frame, f"Angles: {[int(a) for a in finger_angles]}", (10, 80),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 0), 2)
