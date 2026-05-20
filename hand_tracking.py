@@ -5,9 +5,9 @@ from arduino import NUM_SERVOS
 
 # Roughly the PIP-joint angle range we see from MediaPipe in practice:
 # fully curled is ~40°, fully extended is ~175°.
-FINGER_ANGLE_RANGE = (40.0, 175.0)
-THUMB_ANGLE_RANGE = (75.0, 160.0)
-BOTTOM_THUMB_ANGLE_RANGE = (130.0, 160.0)
+FINGER_ANGLE_RANGE = (30.0, 175.0)
+THUMB_ANGLE_RANGE = (110.0, 160.0)
+BOTTOM_THUMB_ANGLE_RANGE = (10.0, 35.0)
 
 def calculate_angle(a, b, c):
     ax, ay = a.x, a.y
@@ -35,7 +35,7 @@ def get_finger_angles(hand_landmarks):
     angles = []
 
     # Bottom thumb
-    angles.append(calculate_angle(lm[0], lm[1], lm[2]))
+    angles.append(calculate_angle(lm[2], lm[0], lm[5]))
 
     # Thumb
     angles.append(calculate_angle(lm[2], lm[3], lm[4]))
@@ -89,7 +89,7 @@ def fingers_to_servo_angles(finger_angles):
     four_fingers = finger_angles[2:]
 
     return [
-        finger_angle_to_servo(bottom_thumb, BOTTOM_THUMB_ANGLE_RANGE),
+        180 - finger_angle_to_servo(bottom_thumb, BOTTOM_THUMB_ANGLE_RANGE),
         finger_angle_to_servo(thumb_ip, THUMB_ANGLE_RANGE),
         *[finger_angle_to_servo(a) for a in four_fingers],
     ]
