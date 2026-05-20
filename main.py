@@ -72,7 +72,7 @@ def main():
 
     send_interval = 1.0 / SERVO_SEND_HZ
     last_send = 0.0
-    last_servo_angles = [90] * NUM_SERVOS
+    last_servo_angles = [0] * NUM_SERVOS
 
     try:
         while True:
